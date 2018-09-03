@@ -1,0 +1,39 @@
+.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
+    position: absolute;
+    margin-top: 4px\9;
+    margin-left: -20px;
+    z-index: 1000;
+}
+
+.submit-button {
+ 
+    top: 27px;
+    right: 0;
+    width: 8.4em;
+}
+
+.center{
+    text-align: center;
+}
+
+.utility{
+    position:fixed;
+    z-index: 100;
+    right: 0;
+}
+
+.rendered-media{
+    height: 100%;
+    padding: 0 50px 8% 5px;
+    overflow: hidden;
+    border-bottom: 1px black solid;
+}
+
+.clear {
+    clear: both;
+}
+
+.title{
+    padding-bottom: 8%;
+    text-align: center;
+}

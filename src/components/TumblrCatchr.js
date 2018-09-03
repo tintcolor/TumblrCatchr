@@ -29,6 +29,7 @@ class TumblrCatchr extends Component {
         this.handleCheckbox = this.handleCheckbox.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.download = this.download.bind(this);
+        this.downloadIndividually = this.downloadIndividually.bind(this);
         this.retrieveMoreMedia = this.retrieveMoreMedia.bind(this);
         this.retrieveAdditionalData = this.retrieveAdditionalData.bind(this);
         this.isNewSite = false;
@@ -96,10 +97,10 @@ class TumblrCatchr extends Component {
 
                 if (post.type == "text") {
                     let url = post.body.match(/(https:\/\/)\S+\.((gif)|(jpg)|(png)|(jpeg))/);
-                    photoArray.push({ type: "photo", url: url[0], date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
+                    photoArray.push({ type: "photo", url: url[0], date: post.date, slug: post.slug, formattedDate: moment(post.date).format("MMMM YYYY") })
                 } else {
                     post.photos.forEach((photo) => {
-                        photoArray.push({ type: post.type, url: photo.original_size.url, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
+                        photoArray.push({ type: post.type, url: photo.original_size.url, slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
                         index++
                     })
                 }
@@ -141,10 +142,10 @@ class TumblrCatchr extends Component {
             response.data.response.posts.forEach((post) => {
                 if (post.type == "text") {
                     let url = post.body.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)((mp4))/)
-                    videoArray.push({ type: "video", url: url[0], date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
+                    videoArray.push({ type: "video", url: url[0], slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
                 } else {
                     if (post.video_type !== "vimeo") {
-                        videoArray.push({ type: post.type, url: post.video_url, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
+                        videoArray.push({ type: post.type, url: post.video_url, slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
 
                     }
                 }
@@ -175,7 +176,7 @@ class TumblrCatchr extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        
+
         this.setState({
             photos: [],
             videos: [],
@@ -207,7 +208,7 @@ class TumblrCatchr extends Component {
     }
 
     handleChange(event) {
-        
+
         this.setState({
             site: event.target.value.replace(" ", "")
         });
@@ -216,11 +217,12 @@ class TumblrCatchr extends Component {
     handleCheckbox(event) {
         let target = event.target
         let checked = target.checked
-
+debugger
         let checkedMedia = {
             url: target.dataset.url,
             index: target.dataset.index,
-            checked: target.checked
+            checked: target.checked,
+            slug: target.dataset.slug
         }
         this.checkedMedia(checkedMedia)
     }
@@ -283,7 +285,8 @@ class TumblrCatchr extends Component {
                             <Checkbox
                                 onChange={this.handleCheckbox}
                                 data-url={field.url}
-                                data-index={index}>
+                                data-index={index}
+                                data-slug={field.slug}>
                                 <video controls>
                                     <source src={field.url} type="video/mp4" />
                                     Your browser does not support the video tag.</video>
@@ -297,7 +300,8 @@ class TumblrCatchr extends Component {
                         <Checkbox
                             onChange={this.handleCheckbox}
                             data-url={field.url}
-                            data-index={index}>
+                            data-index={index}
+                            data-slug={field.slug}>
                             <Image style={{ "width": "200", "maxHeight": "140px" }} src={field.url} responsive key={index} />
                         </Checkbox>
                     </Col>
@@ -319,7 +323,7 @@ class TumblrCatchr extends Component {
         })
         // zip.file(url, this.urlToPromise(url), {binary:true});
         zip.generateAsync({ type: "blob" }, function updateCallback(metadata) {
-            me.setState({ downloadProgression: metadata.percent.toFixed(2) + " %" })
+            me.setState({ downloadProgression: metadata.percent + " %" })
 
         })
             .then(function callback(blob) {
@@ -333,6 +337,33 @@ class TumblrCatchr extends Component {
         return false;
 
 
+    }
+
+    downloadIndividually() {
+        this.state.checkedMedia.map(link => {
+            let fileFormat = link.url.match(/(jpg)|(gif)|(png)|(jpeg)|(mp4)$/);
+            // let videoFileFormat = link.url.match(/(mp4)$/);
+            let imageOrVideo = "image/;"
+            if (fileFormat[0] === "mp4") {
+                imageOrVideo = "video/";
+            }
+
+            var xhr = new XMLHttpRequest();
+
+            var url = 'https://upload.wikimedia.org/wikipedia/commons/d/da/Internet2.jpg';
+
+            xhr.responseType = 'arraybuffer';
+            xhr.open('GET', link.url, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == xhr.DONE) {
+
+                    var file = new Blob([xhr.response], { type: imageOrVideo + fileFormat[0] });
+                    FileSaver.saveAs(file, link.slug + '.' + fileFormat[0]);
+                }
+            };
+            xhr.send();
+        });
     }
 
 
@@ -368,6 +399,9 @@ class TumblrCatchr extends Component {
                 <div className="utility">
                     <button type="submit" onClick={this.download} value="Download" className="submit-button">
                         Download Here
+                    </button>
+                    <button type="submit" onClick={this.downloadIndividually} value="Download" className="submit-button">
+                        Download One by one
                     </button>
                     <button type="submit" onClick={this.retrieveAdditionalData} value="Download" className="submit-button">
                         Get more

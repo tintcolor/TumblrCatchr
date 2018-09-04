@@ -97,10 +97,13 @@ class TumblrCatchr extends Component {
 
                 if (post.type == "text") {
                     let url = post.body.match(/(https:\/\/)\S+\.((gif)|(jpg)|(png)|(jpeg))/);
-                    photoArray.push({ type: "photo", url: url[0], date: post.date, slug: post.slug, formattedDate: moment(post.date).format("MMMM YYYY") })
+                    let lowerQuality = url[0].replace(/(_\d+)/, "_75sq");
+                    photoArray.push({ type: "photo", url: url[0], urlLowQuality: lowerQuality, date: post.date, slug: post.slug, formattedDate: moment(post.date).format("MMMM YYYY") })
                 } else {
                     post.photos.forEach((photo) => {
-                        photoArray.push({ type: post.type, url: photo.original_size.url, slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
+                        let lowerQuality = photo.original_size.url.replace(/(_\d+)/, "_75sq");
+                        
+                        photoArray.push({ type: post.type, url: photo.original_size.url, urlLowQuality: lowerQuality, slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
                         index++
                     })
                 }
@@ -185,7 +188,7 @@ class TumblrCatchr extends Component {
         this.isNewSite = true;
         this.retrieveData();
 
-        // debugger
+        
     }
 
     renderSumbitBox(inputBoxWidth) {
@@ -217,7 +220,7 @@ class TumblrCatchr extends Component {
     handleCheckbox(event) {
         let target = event.target
         let checked = target.checked
-debugger
+
         let checkedMedia = {
             url: target.dataset.url,
             index: target.dataset.index,
@@ -295,15 +298,19 @@ debugger
                     </Col>
                 )
             } else if (field.type === "photo") {
+                
                 return (
-                    <Col xs={this.state.num} md={this.state.num} key={index} >
-                        <Checkbox
-                            onChange={this.handleCheckbox}
-                            data-url={field.url}
-                            data-index={index}
-                            data-slug={field.slug}>
-                            <Image style={{ "width": "200", "maxHeight": "140px" }} src={field.url} responsive key={index} />
-                        </Checkbox>
+                    <Col xs={this.state.num} md={this.state.num} key={index}>
+                        <ResponsiveEmbed a16by9>
+
+                            <Checkbox
+                                onChange={this.handleCheckbox}
+                                data-url={field.url}
+                                data-index={index}
+                                data-slug={field.slug}>
+                                <Image style={{ "width": "200", "maxHeight": "140px" }} src={field.urlLowQuality} responsive key={index} />
+                            </Checkbox>
+                        </ResponsiveEmbed>
                     </Col>
                 )
             }
@@ -323,6 +330,7 @@ debugger
         })
         // zip.file(url, this.urlToPromise(url), {binary:true});
         zip.generateAsync({ type: "blob" }, function updateCallback(metadata) {
+            console.log(metadata.percent)
             me.setState({ downloadProgression: metadata.percent + " %" })
 
         })
@@ -349,15 +357,11 @@ debugger
             }
 
             var xhr = new XMLHttpRequest();
-
-            var url = 'https://upload.wikimedia.org/wikipedia/commons/d/da/Internet2.jpg';
-
             xhr.responseType = 'arraybuffer';
             xhr.open('GET', link.url, true);
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == xhr.DONE) {
-
                     var file = new Blob([xhr.response], { type: imageOrVideo + fileFormat[0] });
                     FileSaver.saveAs(file, link.slug + '.' + fileFormat[0]);
                 }
@@ -380,15 +384,7 @@ debugger
     }
 
 
-    momentTest() {
-        var day = moment("1995-12-25").format();
-        return (<div>
 
-            {day}
-
-        </div>
-        )
-    }
     render() {
         return (
             <div>
@@ -397,18 +393,17 @@ debugger
                 {this.renderSumbitBox()}
                 {this.state.downloadProgression}
                 <div className="utility">
-                    <button type="submit" onClick={this.download} value="Download" className="submit-button">
-                        Download Here
-                    </button>
                     <button type="submit" onClick={this.downloadIndividually} value="Download" className="submit-button">
-                        Download One by one
+                        Download
+                    </button>
+                    <button type="submit" onClick={this.download} value="Download" className="submit-button">
+                        Download As Zip
                     </button>
                     <button type="submit" onClick={this.retrieveAdditionalData} value="Download" className="submit-button">
-                        Get more
+                        Load More Media
                     </button>
                 </div>
 
-                {this.momentTest()}
                 <FormGroup>
                     {this.renderMediaByDate()}
                 </FormGroup>

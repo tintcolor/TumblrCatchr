@@ -21,6 +21,9 @@
     position:fixed;
     z-index: 100;
     right: 0;
+    background: #498ac187;
+    border-radius: 6px;
+    text-align: center;
 }
 
 .rendered-media{

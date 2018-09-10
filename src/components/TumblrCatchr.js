@@ -7,14 +7,12 @@ import styles from '../assets/Tumblr.css';
 import toggleStyles from '../assets/Toggle.css';
 import { Button, FormGroup, FormControl, Grid, Row, Col, Image, DropdownButton, MenuItem, Carousel, Modal, Checkbox, ResponsiveEmbed, Clearfix } from 'react-bootstrap';
 import Toggle from 'react-toggle';
-import clientId from './clientId.json';
 import PropTypes from 'prop-types';
 import zip from 'jszip';
 import FileSaver from 'file-saver';
 import * as _ from 'lodash';
 import tumblrAuth from '../../tumblrAuth.json'
 import { Menu, Item, Sidebar, Segment, Icon, Header, Sticky, Rail, Grid as SemanticGrid } from 'semantic-ui-react';
-// import Moment from 'react-moment';
 var JSZip = require("jszip");
 var JSZipUtils = require("jszip-utils");
 var moment = require('moment');
@@ -32,12 +30,17 @@ class TumblrCatchr extends Component {
         this.downloadIndividually = this.downloadIndividually.bind(this);
         this.retrieveMoreMedia = this.retrieveMoreMedia.bind(this);
         this.retrieveAdditionalData = this.retrieveAdditionalData.bind(this);
+        this.renderVideoAndPhotos = this.renderVideoAndPhotos.bind(this);
         this.isNewSite = false;
 
         this.state = {
             photos: [],
+            // initialPhotos: [],
             videos: [],
+            // initialVideos:    [],
             media: [],
+            showPhotos:true,
+            showVideos:true,
             // site: "",
             site: "",
             initialSite: "",
@@ -102,7 +105,7 @@ class TumblrCatchr extends Component {
                 } else {
                     post.photos.forEach((photo) => {
                         let lowerQuality = photo.original_size.url.replace(/(_\d+)/, "_75sq");
-                        
+
                         photoArray.push({ type: post.type, url: photo.original_size.url, urlLowQuality: lowerQuality, slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
                         index++
                     })
@@ -111,6 +114,7 @@ class TumblrCatchr extends Component {
             })
             me.setState({
                 photos: photoArray,
+                initialPhotos: photoArray,
                 // media: [...photoArray, ...me.state.media],
                 initialSite: me.state.site,
                 totalImagePosts: response.data.response.total_posts
@@ -156,6 +160,7 @@ class TumblrCatchr extends Component {
             })
             me.setState({
                 videos: videoArray,
+                initialVideos: videoArray,
                 initialSite: me.state.site,
                 // media: [...videoArray, ...me.state.media],
                 totalPosts: response.data.response.total_posts
@@ -188,7 +193,7 @@ class TumblrCatchr extends Component {
         this.isNewSite = true;
         this.retrieveData();
 
-        
+
     }
 
     renderSumbitBox(inputBoxWidth) {
@@ -281,24 +286,29 @@ class TumblrCatchr extends Component {
         return groupedMedia[date].map((field, index) => {
 
             var day = moment(field.date).format("MMMM YYYY");
-            if (field.type === "video") {
-                return (
-                    <Col xs={this.state.num} md={this.state.num} key={index}>
-                        <ResponsiveEmbed a16by9>
-                            <Checkbox
-                                onChange={this.handleCheckbox}
-                                data-url={field.url}
-                                data-index={index}
-                                data-slug={field.slug}>
-                                <video controls>
-                                    <source src={field.url} type="video/mp4" />
-                                    Your browser does not support the video tag.</video>
-                            </Checkbox>
-                        </ResponsiveEmbed>
-                    </Col>
-                )
-            } else if (field.type === "photo") {
+            if (field.type === "video" && this.state.showVideos) {
+                try{
+                    return (
+                        <Col xs={this.state.num} md={this.state.num} key={index}>
+                            <ResponsiveEmbed a16by9>
+                                <Checkbox
+                                    onChange={this.handleCheckbox}
+                                    data-url={field.url}
+                                    data-index={index}
+                                    data-slug={field.slug}>
+                                    <video controls muted>
+                                        <source src={field.url} type="video/mp4" />
+                                        Your browser does not support the video tag.</video>
+                                </Checkbox>
+                            </ResponsiveEmbed>
+                        </Col>
+                    )
+                }catch(error){
+                    debugger
+                }
                 
+            } else if (field.type === "photo" && this.state.showPhotos) {
+
                 return (
                     <Col xs={this.state.num} md={this.state.num} key={index}>
                         <ResponsiveEmbed a16by9>
@@ -383,6 +393,34 @@ class TumblrCatchr extends Component {
         });
     }
 
+    renderVideoAndPhotos(event) {
+        let target = event.target
+        console.log(target.checked)
+        // let array = [];
+        // debugger
+        if (target.value === "videos" && target.checked===false) {
+            this.setState({
+                showVideos:false,
+                // videos: []
+            })
+        } else if (target.value === "videos" && target.checked===true) {
+            this.setState({
+                showVideos:true,
+                // videos: this.state.initialVideos
+            })
+        } else if (target.value === "photos" && target.checked===false) {
+            this.setState({
+                showPhotos:false,
+                // photos: []
+            })
+        } else if (target.value === "photos" && target.checked===true) {
+            this.setState({
+                showPhotos:true,
+                // photos: this.state.initialPhotos
+            })
+        }
+
+    }
 
 
     render() {
@@ -402,6 +440,18 @@ class TumblrCatchr extends Component {
                     <button type="submit" onClick={this.retrieveAdditionalData} value="Download" className="submit-button">
                         Load More Media
                     </button>
+                    <Checkbox
+                        value={"videos"}
+                        onChange={this.renderVideoAndPhotos}
+                        defaultChecked={true}
+                    >Videos
+                    </Checkbox>
+                    <Checkbox
+                        value={"photos"}
+                        onChange={this.renderVideoAndPhotos}
+                        defaultChecked={true}
+                    >Photos
+                    </Checkbox>
                 </div>
 
                 <FormGroup>

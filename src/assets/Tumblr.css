@@ -2,7 +2,7 @@
     position: absolute;
     margin-top: 4px\9;
     margin-left: -20px;
-    z-index: 1000;
+    z-index: 100;
 }
 
 .submit-button {
@@ -21,9 +21,11 @@
     position:fixed;
     z-index: 100;
     right: 0;
-    background: #498ac187;
+    background:#36465d;
     border-radius: 6px;
     text-align: center;
+    border: 1px black solid;
+    padding: 3px;
 }
 
 .rendered-media{
@@ -40,4 +42,51 @@
 .title{
     padding-bottom: 8%;
     text-align: center;
+}
+
+.menu-button{
+    height: 40px;
+    margin: 0 auto;
+    padding-top: 7px;
+}
+
+.menu-button:hover{
+    opacity: .5;
+}
+
+.inner-div{
+    padding: 73px;
+    /* border-radius: 101px; */
+}
+
+.outer-div{
+    height: 100%;
+    min-height: 100vh;
+background:#36465d;
+}
+
+.search-bar{
+    position: absolute;
+    top: 15px;
+    width: 63%;
+}
+
+.form-control{
+    background: #2e3d50;
+    color: #aeb3ba;
+    border: none;
+    
+}
+
+.form-control:focus{
+    background: #ffffff;
+    color:black;
+}
+.form-control::selection{
+    color:#ffffff;
+    background:#001eff;
+}
+.media-div{
+    border-radius: 15px;
+    background: #ffffff;
 }

@@ -17,7 +17,13 @@ class App extends Component {
 
     render() {
       
-        return (<div className="full-height"> <TumblrCatchr /></div>)
+        return (
+        <div className="full-height outer-div">
+        <div className="inner-div">
+         <TumblrCatchr />
+         </div>
+         </div>
+         )
         // return (<div> <Cookie /></div>)
     }
 }

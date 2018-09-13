@@ -9,8 +9,10 @@ import { Button, FormGroup, FormControl, Grid, Row, Col, Image, DropdownButton, 
 import Toggle from 'react-toggle';
 import PropTypes from 'prop-types';
 import zip from 'jszip';
+import Expand from 'react-expand-animated';
 import FileSaver from 'file-saver';
 import * as _ from 'lodash';
+import ImageZoom from 'react-medium-image-zoom'
 import tumblrAuth from '../../tumblrAuth.json'
 import { Menu, Item, Sidebar, Segment, Icon, Header, Sticky, Rail, Grid as SemanticGrid } from 'semantic-ui-react';
 var JSZip = require("jszip");
@@ -31,16 +33,15 @@ class TumblrCatchr extends Component {
         this.retrieveMoreMedia = this.retrieveMoreMedia.bind(this);
         this.retrieveAdditionalData = this.retrieveAdditionalData.bind(this);
         this.renderVideoAndPhotos = this.renderVideoAndPhotos.bind(this);
+        this.toggle = this.toggle.bind(this);
         this.isNewSite = false;
 
         this.state = {
             photos: [],
-            // initialPhotos: [],
             videos: [],
-            // initialVideos:    [],
             media: [],
-            showPhotos:true,
-            showVideos:true,
+            showPhotos: true,
+            showVideos: true,
             // site: "",
             site: "",
             initialSite: "",
@@ -48,8 +49,8 @@ class TumblrCatchr extends Component {
             checkedMedia: [],
             downloadProgression: "0%",
             totalPosts: 0,
-            offset: 0
-
+            offset: 0,
+            enlarge: false
         }
     }
 
@@ -71,9 +72,8 @@ class TumblrCatchr extends Component {
     sandtizeURL(site) {
 
     }
+
     //separting videos and images allow less stress for multiple calls with the api 3950 all posts vs 200+1000 media post
-
-
     retrieveImages(offset) {
         let me = this;
         let photoArray = [];
@@ -100,11 +100,11 @@ class TumblrCatchr extends Component {
 
                 if (post.type == "text") {
                     let url = post.body.match(/(https:\/\/)\S+\.((gif)|(jpg)|(png)|(jpeg))/);
-                    let lowerQuality = url[0].replace(/(_\d+)/, "_75sq");
+                    let lowerQuality = url[0].replace(/(_\d+)/, "_250");
                     photoArray.push({ type: "photo", url: url[0], urlLowQuality: lowerQuality, date: post.date, slug: post.slug, formattedDate: moment(post.date).format("MMMM YYYY") })
                 } else {
                     post.photos.forEach((photo) => {
-                        let lowerQuality = photo.original_size.url.replace(/(_\d+)/, "_75sq");
+                        let lowerQuality = photo.original_size.url.replace(/(_\d+)/, "_250");
 
                         photoArray.push({ type: post.type, url: photo.original_size.url, urlLowQuality: lowerQuality, slug: post.slug, date: post.date, formattedDate: moment(post.date).format("MMMM YYYY") })
                         index++
@@ -199,17 +199,19 @@ class TumblrCatchr extends Component {
     renderSumbitBox(inputBoxWidth) {
 
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form
+                className="search-bar"
+                onSubmit={this.handleSubmit}>
                 {/* <label style={{ position: "relative" }}> */}
                 <FormControl
                     type="text"
                     value={this.state.site}
                     placeholder="Website"
                     onChange={this.handleChange} />
-                <button type="submit" value="Submit" className="submit-button">
+                {/* <button type="submit" value="Submit" className="submit-button">
                     submit
 
-                    </button>
+                    </button> */}
                 {/* </label> */}
             </form>
         )
@@ -287,9 +289,9 @@ class TumblrCatchr extends Component {
 
             var day = moment(field.date).format("MMMM YYYY");
             if (field.type === "video" && this.state.showVideos) {
-                try{
+                try {
                     return (
-                        <Col xs={this.state.num} md={this.state.num} key={index}>
+                        <Col xs={5} md={3} key={index}>
                             <ResponsiveEmbed a16by9>
                                 <Checkbox
                                     onChange={this.handleCheckbox}
@@ -303,14 +305,14 @@ class TumblrCatchr extends Component {
                             </ResponsiveEmbed>
                         </Col>
                     )
-                }catch(error){
+                } catch (error) {
                     debugger
                 }
-                
+
             } else if (field.type === "photo" && this.state.showPhotos) {
 
                 return (
-                    <Col xs={this.state.num} md={this.state.num} key={index}>
+                    <Col xs={5} md={3} key={index}>
                         <ResponsiveEmbed a16by9>
 
                             <Checkbox
@@ -318,7 +320,21 @@ class TumblrCatchr extends Component {
                                 data-url={field.url}
                                 data-index={index}
                                 data-slug={field.slug}>
-                                <Image style={{ "width": "200", "maxHeight": "140px" }} src={field.urlLowQuality} responsive key={index} />
+                                {/* <Image style={{ "width": "200", "maxHeight": "140px" }} src={field.urlLowQuality}  /> */}
+                                <ImageZoom
+                                    responsive key={index}
+                                    image={{
+                                        src: field.urlLowQuality,
+                                        alt: field.slug,
+                                        className: 'img',
+                                        style:{ "width": "200", "maxHeight": "140px","z-index":"10000" }
+                                    }}
+                                    zoomImage={{
+                                        src: field.url,
+                                        alt: field.slug
+                                    }}
+                                />
+
                             </Checkbox>
                         </ResponsiveEmbed>
                     </Col>
@@ -395,51 +411,43 @@ class TumblrCatchr extends Component {
 
     renderVideoAndPhotos(event) {
         let target = event.target
-        console.log(target.checked)
-        // let array = [];
-        // debugger
-        if (target.value === "videos" && target.checked===false) {
+
+        if (target.value === "videos" && target.checked === false) {
             this.setState({
-                showVideos:false,
-                // videos: []
+                showVideos: false,
             })
-        } else if (target.value === "videos" && target.checked===true) {
+        } else if (target.value === "videos" && target.checked === true) {
             this.setState({
-                showVideos:true,
-                // videos: this.state.initialVideos
+                showVideos: true,
             })
-        } else if (target.value === "photos" && target.checked===false) {
+        } else if (target.value === "photos" && target.checked === false) {
             this.setState({
-                showPhotos:false,
-                // photos: []
+                showPhotos: false,
             })
-        } else if (target.value === "photos" && target.checked===true) {
+        } else if (target.value === "photos" && target.checked === true) {
             this.setState({
-                showPhotos:true,
-                // photos: this.state.initialPhotos
+                showPhotos: true,
             })
         }
 
     }
 
+    toggle() {
+        this.setState({ enlarge: !this.state.enlarge })
+    }
 
     render() {
         return (
             <div>
 
-                TumblrCatchr
+
                 {this.renderSumbitBox()}
-                {this.state.downloadProgression}
+                <hr />
+                {/* {this.state.downloadProgression} */}
                 <div className="utility">
-                    <button type="submit" onClick={this.downloadIndividually} value="Download" className="submit-button">
-                        Download
-                    </button>
-                    <button type="submit" onClick={this.download} value="Download" className="submit-button">
-                        Download As Zip
-                    </button>
-                    <button type="submit" onClick={this.retrieveAdditionalData} value="Download" className="submit-button">
-                        Load More Media
-                    </button>
+                    <img className="menu-button" onClick={this.downloadIndividually} src="\src\assets\images\download.png"></img>
+                    <img className="menu-button" onClick={this.download} src="\src\assets\images\downloadAsZip.png"></img>
+                    <img className="menu-button" onClick={this.retrieveAdditionalData} src="\src\assets\images\add.png"></img>
                     <Checkbox
                         value={"videos"}
                         onChange={this.renderVideoAndPhotos}
@@ -454,7 +462,8 @@ class TumblrCatchr extends Component {
                     </Checkbox>
                 </div>
 
-                <FormGroup>
+
+                <FormGroup className="media-div">
                     {this.renderMediaByDate()}
                 </FormGroup>
             </div>

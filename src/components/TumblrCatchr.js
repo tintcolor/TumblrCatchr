@@ -15,6 +15,9 @@ import * as _ from 'lodash';
 import ImageZoom from 'react-medium-image-zoom'
 import tumblrAuth from '../../tumblrAuth.json'
 import { Menu, Item, Sidebar, Segment, Icon, Header, Sticky, Rail, Grid as SemanticGrid } from 'semantic-ui-react';
+import "node_modules/video-react/dist/video-react.css";
+import { Player, ControlBar, PlayToggle } from 'video-react';
+
 var JSZip = require("jszip");
 var JSZipUtils = require("jszip-utils");
 var moment = require('moment');
@@ -95,7 +98,6 @@ class TumblrCatchr extends Component {
                 Authorization: "OAuth oauth_consumer_key=" + '"' + tumblrAuth.Authorization + '"'
             }
         }).then(function (response) {
-            console.log(response)
             response.data.response.posts.forEach((post) => {
 
                 if (post.type == "text") {
@@ -119,7 +121,6 @@ class TumblrCatchr extends Component {
                 initialSite: me.state.site,
                 totalImagePosts: response.data.response.total_posts
             })
-            console.log(me)
 
         })
     }
@@ -145,7 +146,6 @@ class TumblrCatchr extends Component {
                 Authorization: "OAuth oauth_consumer_key=" + '"' + tumblrAuth.Authorization + '"'
             }
         }).then(function (response) {
-            console.log(response)
             response.data.response.posts.forEach((post) => {
                 if (post.type == "text") {
                     let url = post.body.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)((mp4))/)
@@ -165,7 +165,6 @@ class TumblrCatchr extends Component {
                 // media: [...videoArray, ...me.state.media],
                 totalPosts: response.data.response.total_posts
             })
-            console.log(me)
 
         })
     }
@@ -199,6 +198,7 @@ class TumblrCatchr extends Component {
     renderSumbitBox(inputBoxWidth) {
 
         return (
+
             <form
                 className="search-bar"
                 onSubmit={this.handleSubmit}>
@@ -206,7 +206,7 @@ class TumblrCatchr extends Component {
                 <FormControl
                     type="text"
                     value={this.state.site}
-                    placeholder="Website"
+                    placeholder="Blogname"
                     onChange={this.handleChange} />
                 {/* <button type="submit" value="Submit" className="submit-button">
                     submit
@@ -293,15 +293,18 @@ class TumblrCatchr extends Component {
                     return (
                         <Col xs={5} md={3} key={index}>
                             <ResponsiveEmbed a16by9>
-                                <Checkbox
-                                    onChange={this.handleCheckbox}
-                                    data-url={field.url}
-                                    data-index={index}
-                                    data-slug={field.slug}>
-                                    <video controls muted>
+                                <FormGroup>
+                                    <Checkbox
+                                        inline={true}
+                                        onChange={this.handleCheckbox}
+                                        data-url={field.url}
+                                        data-index={index}
+                                        data-slug={field.slug}>
+                                    </Checkbox>
+                                    <video controls>
                                         <source src={field.url} type="video/mp4" />
                                         Your browser does not support the video tag.</video>
-                                </Checkbox>
+                                </FormGroup>
                             </ResponsiveEmbed>
                         </Col>
                     )
@@ -314,12 +317,13 @@ class TumblrCatchr extends Component {
                 return (
                     <Col xs={5} md={3} key={index}>
                         <ResponsiveEmbed a16by9>
-
-                            <Checkbox
-                                onChange={this.handleCheckbox}
-                                data-url={field.url}
-                                data-index={index}
-                                data-slug={field.slug}>
+                            <FormGroup>
+                                <Checkbox
+                                    onChange={this.handleCheckbox}
+                                    data-url={field.url}
+                                    data-index={index}
+                                    data-slug={field.slug}>
+                                </Checkbox>
                                 {/* <Image style={{ "width": "200", "maxHeight": "140px" }} src={field.urlLowQuality}  /> */}
                                 <ImageZoom
                                     responsive key={index}
@@ -327,7 +331,7 @@ class TumblrCatchr extends Component {
                                         src: field.urlLowQuality,
                                         alt: field.slug,
                                         className: 'img',
-                                        style:{ "width": "200", "maxHeight": "140px","z-index":"10000" }
+                                        style: { "width": "200", "maxHeight": "140px", "zIndex": "10000" }
                                     }}
                                     zoomImage={{
                                         src: field.url,
@@ -335,7 +339,7 @@ class TumblrCatchr extends Component {
                                     }}
                                 />
 
-                            </Checkbox>
+                            </FormGroup>
                         </ResponsiveEmbed>
                     </Col>
                 )
@@ -356,7 +360,6 @@ class TumblrCatchr extends Component {
         })
         // zip.file(url, this.urlToPromise(url), {binary:true});
         zip.generateAsync({ type: "blob" }, function updateCallback(metadata) {
-            console.log(metadata.percent)
             me.setState({ downloadProgression: metadata.percent + " %" })
 
         })
@@ -440,14 +443,16 @@ class TumblrCatchr extends Component {
         return (
             <div>
 
-
+                <div>Input only the blog name without tumblr.com</div>
+                <div><b>catpics</b>.tumblr.com</div>
                 {this.renderSumbitBox()}
+
                 <hr />
                 {/* {this.state.downloadProgression} */}
                 <div className="utility">
-                    <img className="menu-button" onClick={this.downloadIndividually} src="\src\assets\images\download.png"></img>
-                    <img className="menu-button" onClick={this.download} src="\src\assets\images\downloadAsZip.png"></img>
-                    <img className="menu-button" onClick={this.retrieveAdditionalData} src="\src\assets\images\add.png"></img>
+                    <img className="menu-button" onClick={this.downloadIndividually} src="\src\assets\images\download.png" title="Download individually"></img>
+                    <img className="menu-button" onClick={this.download} src="\src\assets\images\downloadAsZip.png" title="Download as Zip file"></img>
+                    <img className="menu-button" onClick={this.retrieveAdditionalData} src="\src\assets\images\add.png" title="More media"></img>
                     <Checkbox
                         value={"videos"}
                         onChange={this.renderVideoAndPhotos}

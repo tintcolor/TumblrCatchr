@@ -30,7 +30,7 @@
 
 .rendered-media{
     height: 100%;
-    padding: 0 50px 8% 5px;
+    padding: 0 50px 5% 5px;
     overflow: hidden;
     border-bottom: 1px black solid;
 }
@@ -40,7 +40,7 @@
 }
 
 .title{
-    padding-bottom: 8%;
+    padding-bottom: 4%;
     text-align: center;
 }
 
@@ -48,6 +48,8 @@
     height: 40px;
     margin: 0 auto;
     padding-top: 7px;
+    filter: invert(100%);
+    opacity: 0.6;
 }
 
 .menu-button:hover{

@@ -1,2 +1,3 @@
 node_modules
-./tumblrAuth.json
+tumblrAuth.json
+.vscode

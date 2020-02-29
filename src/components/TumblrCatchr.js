@@ -4,7 +4,6 @@ import { render } from 'react-dom';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import styles from '../assets/Tumblr.css';
-import toggleStyles from '../assets/Toggle.css';
 import { Button, FormGroup, FormControl, Grid, Row, Col, Image, DropdownButton, MenuItem, Carousel, Modal, Checkbox, ResponsiveEmbed, Clearfix } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import PropTypes from 'prop-types';
@@ -45,7 +44,6 @@ class TumblrCatchr extends Component {
             media: [],
             showPhotos: true,
             showVideos: true,
-            // site: "",
             site: "",
             initialSite: "",
             num: 3,
@@ -84,10 +82,7 @@ class TumblrCatchr extends Component {
 
 
         if (this.state.site === this.state.initialSite && !this.isNewSite) {
-
             photoArray = this.state.photos;
-            // media = this.state.media;
-
         }
 
         let index = 0;
@@ -162,24 +157,15 @@ class TumblrCatchr extends Component {
                 videos: videoArray,
                 initialVideos: videoArray,
                 initialSite: me.state.site,
-                // media: [...videoArray, ...me.state.media],
                 totalPosts: response.data.response.total_posts
             })
 
         })
     }
 
-    // addMediaToState() {
-
-    // }
-
-
-
     retrieveMoreMedia() {
         this.retrieveVideos(49)
     }
-
-
 
     handleSubmit(event) {
         event.preventDefault();
@@ -189,10 +175,9 @@ class TumblrCatchr extends Component {
             videos: [],
             media: []
         })
+
         this.isNewSite = true;
         this.retrieveData();
-
-
     }
 
     renderSumbitBox(inputBoxWidth) {
@@ -202,17 +187,11 @@ class TumblrCatchr extends Component {
             <form
                 className="search-bar"
                 onSubmit={this.handleSubmit}>
-                {/* <label style={{ position: "relative" }}> */}
                 <FormControl
                     type="text"
                     value={this.state.site}
                     placeholder="Blogname"
                     onChange={this.handleChange} />
-                {/* <button type="submit" value="Submit" className="submit-button">
-                    submit
-
-                    </button> */}
-                {/* </label> */}
             </form>
         )
     }
@@ -263,8 +242,6 @@ class TumblrCatchr extends Component {
             return date.formattedDate;
         });
 
-        // let groupedMedia = _.groupBy(this.state.media, "formattedDate");
-
         return dates.map((date, index) => {
             return (
                 <div className="rendered-media" key={index}>
@@ -283,7 +260,6 @@ class TumblrCatchr extends Component {
     renderMedia(date) {
 
         let groupedMedia = _.groupBy([...this.state.videos, ...this.state.photos], "formattedDate");
-
 
         return groupedMedia[date].map((field, index) => {
 
@@ -466,8 +442,6 @@ class TumblrCatchr extends Component {
                     >Photos
                     </Checkbox>
                 </div>
-
-
                 <FormGroup className="media-div">
                     {this.renderMediaByDate()}
                 </FormGroup>

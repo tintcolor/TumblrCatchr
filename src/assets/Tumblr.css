@@ -6,29 +6,28 @@
 }
 
 .submit-button {
- 
     top: 27px;
     right: 0;
     width: 8.4em;
 }
 
-.center{
+.center {
     text-align: center;
 }
 
-.utility{
+.utility {
     display: inline-grid;
-    position:fixed;
+    position: fixed;
     z-index: 100;
     right: 0;
-    background:#36465d;
+    background: #36465d;
     border-radius: 6px;
     text-align: center;
     border: 1px black solid;
     padding: 3px;
 }
 
-.rendered-media{
+.rendered-media {
     height: 100%;
     padding: 0 50px 5% 5px;
     overflow: hidden;
@@ -39,12 +38,12 @@
     clear: both;
 }
 
-.title{
+.title {
     padding-bottom: 4%;
     text-align: center;
 }
 
-.menu-button{
+.menu-button {
     height: 40px;
     margin: 0 auto;
     padding-top: 7px;
@@ -52,43 +51,44 @@
     opacity: 0.6;
 }
 
-.menu-button:hover{
+.menu-button:hover {
     opacity: .5;
 }
 
-.inner-div{
+.inner-div {
     padding: 73px;
     /* border-radius: 101px; */
 }
 
-.outer-div{
+.outer-div {
     height: 100%;
     min-height: 100vh;
-background:#36465d;
+    background: #36465d;
 }
 
-.search-bar{
+.search-bar {
     position: absolute;
     top: 15px;
     width: 63%;
 }
 
-.form-control{
+.form-control {
     background: #2e3d50;
     color: #aeb3ba;
     border: none;
-    
 }
 
-.form-control:focus{
+.form-control:focus {
     background: #ffffff;
-    color:black;
+    color: black;
 }
-.form-control::selection{
-    color:#ffffff;
-    background:#001eff;
+
+.form-control::selection {
+    color: #ffffff;
+    background: #001eff;
 }
-.media-div{
+
+.media-div {
     border-radius: 15px;
     background: #ffffff;
 }
